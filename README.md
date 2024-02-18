@@ -7,5 +7,7 @@ As of 2/18/2024, I am still working on this project. My plans are as follows:
 - Write a better program input mechanism for the testing engine.
 - Test against better test suites and make adjustments as necessary.
 - Build my own fictional computer that runs against the 6502 emulator, complete with a display and and user interaction.
+## What's With the CB Prefix
+Much like oneLoneCoder prefixes his source files with olc, I decided to add my own prefix. CB is short for CrunchBerry. That is the gamer tag I use for StarCraft and other online games when it is available. I feel that it is silly, but silly is how I roll.
 ## Message
 I hope this code can help you if that is what you need. I also encourage you to submit any fixes or bugs you run up against. As I said, this is just a hobby, and I am trying to learn these things again. I expect things are not perfect; they never are. I encourage you to add your own stamp to the project through a fork or pull request.
