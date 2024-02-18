@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 #include "c6502.h"
 #include "ccbRamBus.h"
 
@@ -30,11 +31,18 @@ static void load_program(ccb_bus *pccb_bus, uint8_t *prog, uint16_t start_addres
 
 static void run_program(uint16_t start_address, uint16_t prog_size)
 {
+    struct timespec tsstart, tnow;
     const cpu_state *pcpu_state = get_cpu_state();
     reset();
+    timespec_get(&tsstart, TIME_UTC);
     do
     {
-        clock();
+        timespec_get(&tnow, TIME_UTC);
+        if (((uint64_t)tnow.tv_nsec - (uint64_t)tsstart.tv_nsec) >= 500)
+        {
+            cpu_clock();
+            tsstart = tnow;
+        }
     } while ((pcpu_state->pc < (start_address + prog_size)) || (!complete()));
 }
 

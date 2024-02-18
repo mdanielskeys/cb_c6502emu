@@ -33,7 +33,7 @@ typedef enum FLAGS6502
 void initialize_c6502(ccb_bus* pBus);
 
 // ideas from OLC
-void clock();
+void cpu_clock();
 void reset();
 void irq();
 void nmi();

@@ -5,13 +5,12 @@
 #include <stdbool.h>
 #include "c6502.h"
 #include "ccbBus.h"
-#include "defs.h"
 
 /**************************************************************************
  * File Declarations
  */
 
-ccb_bus* pccb_bus = NULL;
+ccb_bus *pccb_bus = NULL;
 
 cpu_state regs;
 
@@ -23,14 +22,13 @@ typedef struct operation_struct
     uint8_t cycles;
 } cpu_operations;
 
-cpu_operations op_codes[0x100];     // setup 256 op_code locations
+cpu_operations op_codes[0x100]; // setup 256 op_code locations
 uint8_t cycles = 0;
 uint8_t fetched = 0;
 uint16_t addr_abs = 0;
 uint16_t addr_rel = 0;
 uint8_t opcode = 0;
 uint16_t abs_addr = 0;
-
 
 /*****************************************************************************************
  * Forward Declarations of Functions
@@ -328,7 +326,7 @@ static uint8_t BIT()
     fetch();
     uint16_t temp = regs.a & fetched;
     set_flag(Z, (temp & 0x00FF) == 0x00);
-    set_flag(N, fetched & (1 << 7)); 
+    set_flag(N, fetched & (1 << 7));
     set_flag(V, fetched & (1 << 6));
     return 0;
 }
@@ -389,9 +387,9 @@ static uint8_t BRK()
     regs.pc++;
 
     set_flag(I, 1);
-    write(0x0100 + regs.sp, (regs.pc >> 8) & 0x00FF);   // write high byte to stack
+    write(0x0100 + regs.sp, (regs.pc >> 8) & 0x00FF); // write high byte to stack
     regs.sp++;
-    write(0x0100 + regs.sp, regs.pc & 0x00FF);          // write lo byete to stack
+    write(0x0100 + regs.sp, regs.pc & 0x00FF); // write lo byete to stack
     regs.sp++;
 
     set_flag(B, 1);
@@ -487,7 +485,7 @@ static uint8_t CPY()
     uint16_t temp = (uint16_t)regs.y - (uint16_t)fetched;
     set_flag(C, regs.y >= fetched);
     set_flag(Z, (temp & 0x00FF) == 0x0000);
-    set_flag(N, temp & 0x0080);    
+    set_flag(N, temp & 0x0080);
     return 0;
 }
 
@@ -680,7 +678,7 @@ static uint8_t ROL()
     {
         regs.a = temp & 0x00FF;
     }
-    else 
+    else
     {
         write(addr_abs, temp & 0x00FF);
     }
@@ -698,10 +696,10 @@ static uint8_t ROR()
     {
         regs.a = temp & 0x00FF;
     }
-    else 
+    else
     {
         write(addr_abs, temp & 0x00FF);
-    }    
+    }
     return 0;
 }
 
@@ -1189,14 +1187,14 @@ static void set_flag(FLAGS6502 f, bool v)
 /************************************************************************************
  * functions callable from application running the processor
  */
-void initialize_c6502(ccb_bus* pBus)
+void initialize_c6502(ccb_bus *pBus)
 {
     pccb_bus = pBus;
     setup_instruction_set();
     reset();
 }
 
-void clock()
+void cpu_clock()
 {
     if (cycles == 0)
     {
@@ -1220,7 +1218,7 @@ bool complete()
     return cycles == 0;
 }
 
-const cpu_state* get_cpu_state()
+const cpu_state *get_cpu_state()
 {
     return &regs;
 }
