@@ -1,6 +1,6 @@
 # 6502 Emulator in C
 ## Yet Another 6502 Emulator
-Did the world need another 6502 emulator? No, probably not. I am doing this project to educate myself and get reacquainted with C. I was definitely educated by oneLoneCoder's *[NES project](https://github.com/OneLoneCoder/olcNES)*. His *[videos](https://www.youtube.com/watch?v=nViZg02IMQo&list=PLrOv9FMX8xJHqMvSGB_9G9nZZ_4IgteYf)* is a great series and really gave me a great start and some cool code organization ideas. 
+Did the world need another 6502 emulator? No, probably not. I am doing this project to educate myself and get reacquainted with C. I was definitely educated by oneLoneCoder's *[NES project](https://github.com/OneLoneCoder/olcNES)*. His *[videos](https://www.youtube.com/watch?v=nViZg02IMQo&list=PLrOv9FMX8xJHqMvSGB_9G9nZZ_4IgteYf)* are a great series. They gave me a great start and some cool code organization ideas. 
 ## What's Next
 As of 2/18/2024, I am still working on this project. My plans are as follows:
 - Finish the implementation of BCD for SBC.
