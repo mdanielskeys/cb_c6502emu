@@ -207,6 +207,39 @@ static uint8_t IMP()
     return 0;
 }
 
+/****************************************************************************************
+ * Helper Functions
+ */
+static uint8_t addBCD(uint8_t bcd1, uint8_t bcd2, uint8_t *carry)
+{
+    uint8_t ln = 0; // low nibble
+    uint8_t hn = 0; // high nibble
+    uint8_t nc = 0; // nibble carry
+
+    // Add ones place
+    ln = (bcd1 & 0x0F) + (bcd2 & 0x0F) + *carry;
+    if (ln >= 10)
+    {
+        ln -= 10;
+        nc = 1;
+    }
+
+    // Add tens place
+    hn = ((bcd1 >> 4) + (bcd2 >> 4) + nc);
+    if (hn >= 10)
+    {
+        hn -= 10;
+        *carry = 1;
+    }
+    else
+    {
+        *carry = 0;
+    }
+
+    // Ensure result stays within 0-99 range
+    return hn << 4 | ln;
+}
+
 static uint8_t fetch()
 {
     if (!(op_codes[opcode].addr_mode == &IMP) && !(op_codes[opcode].addr_mode == &ACC))
@@ -232,14 +265,24 @@ static uint8_t UNK()
 static uint8_t ADC()
 {
     fetch();
-    uint16_t temp = (uint16_t)regs.a + (uint16_t)fetched + (uint16_t)get_flag(C);
+    if (get_flag(D) == 1) // then do BCD addition
+    {
+        uint8_t carry = get_flag(C);
+        regs.a = addBCD(regs.a, fetched, &carry);
+        set_flag(C, carry);
+    }
+    else
+    {
+        uint16_t temp = (uint16_t)regs.a + (uint16_t)fetched + (uint16_t)get_flag(C);
 
-    set_flag(C, temp > 255);
-    set_flag(Z, (temp & 0x00FF) == 0);
-    set_flag(N, temp & 0x80);
-    set_flag(V, (~((uint16_t)regs.a ^ (uint16_t)fetched) & ((uint16_t)regs.a ^ (uint16_t)temp)) & 0x0080);
+        set_flag(C, temp > 255);
+        set_flag(V, (~((uint16_t)regs.a ^ (uint16_t)fetched) & ((uint16_t)regs.a ^ (uint16_t)temp)) & 0x0080);
 
-    regs.a = temp & 0x00FF;
+        regs.a = temp & 0x00FF;
+    }
+    set_flag(Z, regs.a == 0);
+    set_flag(N, regs.a & 0x80);
+
     return 1;
 }
 

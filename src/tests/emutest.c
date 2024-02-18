@@ -178,6 +178,36 @@ static void test_stack_push_pull(ccb_bus *pccb_bus)
     test_flags(0, Z, "Z", test_name);
 }
 
+static void test_adc_bcd(ccb_bus *pccb_bus)
+{
+    char test_name[] = "test_adc_bcd";
+    uint8_t prog[] = {0xA9, 0x45, 0xF8, 0x18, 0x69, 0x23, 0x00};
+    load_and_run_test_prog(pccb_bus, prog, test_name);
+    test_reg_a(0x68, test_name);
+    test_flags(0, C, "C", test_name);
+    test_flags(1, D, "D", test_name);
+}
+
+static void test_adc_bcd_with_carry(ccb_bus *pccb_bus)
+{
+    char test_name[] = "test_adc_bcd_with_carry";
+    uint8_t prog[] = {0xA9, 0x49, 0xF8, 0x18, 0x69, 0x23, 0x00};
+    load_and_run_test_prog(pccb_bus, prog, test_name);
+    test_reg_a(0x72, test_name);
+    test_flags(0, C, "C", test_name);
+    test_flags(1, D, "D", test_name);
+}
+
+static void test_adc_bcd_one_hundred(ccb_bus *pccb_bus)
+{
+    char test_name[] = "test_adc_bcd_one_hundred";
+    uint8_t prog[] = {0xA9, 0x99, 0xF8, 0x18, 0x69, 0x01, 0x00};
+    load_and_run_test_prog(pccb_bus, prog, test_name);
+    test_reg_a(0x00, test_name);
+    test_flags(1, C, "C", test_name);
+    test_flags(1, D, "D", test_name);
+}
+
 int main(void)
 {
     ccb_bus ram_bus;
@@ -190,6 +220,9 @@ int main(void)
         test_lda_immediate(&ram_bus);
         test_lda_immediate_neg(&ram_bus);
         test_stack_push_pull(&ram_bus);
+        test_adc_bcd(&ram_bus);
+        test_adc_bcd_with_carry(&ram_bus);
+        test_adc_bcd_one_hundred(&ram_bus);
 
         ram_bus.shutdown();
     }
