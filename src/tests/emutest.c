@@ -34,11 +34,11 @@ static void run_program(uint16_t start_address, uint16_t prog_size)
     struct timespec tsstart, tnow;
     const cpu_state *pcpu_state = get_cpu_state();
     reset();
-    timespec_get(&tsstart, TIME_UTC);
+    int rc = timespec_get(&tsstart, TIME_UTC);
     do
     {
-        timespec_get(&tnow, TIME_UTC);
-        if (((uint64_t)tnow.tv_nsec - (uint64_t)tsstart.tv_nsec) >= 500)
+        rc = timespec_get(&tnow, TIME_UTC);
+        if (rc != 0 && ((uint64_t)tnow.tv_nsec - (uint64_t)tsstart.tv_nsec) >= 500)
         {
             cpu_clock();
             tsstart = tnow;
