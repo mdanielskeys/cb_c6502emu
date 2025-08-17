@@ -12,6 +12,10 @@ build/
 Debug/
 Release/
 
+# Binaries
+emutest
+testbus
+
 # msbuild
 *.user
 *.suo
