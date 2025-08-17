@@ -879,7 +879,8 @@ static uint8_t TYA()
  */
 static void set_operation(uint8_t op_code, char *name, uint8_t (*operation)(), uint8_t (*add_func)(), uint8_t cycles)
 {
-    strncpy_s(op_codes[op_code].op_name, 4, name, sizeof(op_codes[op_code].op_name));
+    strncpy(op_codes[op_code].op_name, name, sizeof(op_codes[op_code].op_name) - 1);
+    op_codes[op_code].op_name[sizeof(op_codes[op_code].op_name) - 1] = '\0';
     op_codes[op_code].operation = operation;
     op_codes[op_code].addr_mode = add_func;
     op_codes[op_code].cycles = cycles;
@@ -889,7 +890,10 @@ static void set_all_unk()
 {
     for (int i = 0; i <= 0xFF; i++)
     {
-        strncpy_s(op_codes[i].op_name, 4, "???", sizeof(op_codes[i].op_name));
+        op_codes[i].op_name[0] = '?';
+        op_codes[i].op_name[1] = '?';
+        op_codes[i].op_name[2] = '?';
+        op_codes[i].op_name[3] = '\0';
         op_codes[i].operation = &UNK;
         op_codes[i].addr_mode = &UNK;
         op_codes[i].cycles = 1;

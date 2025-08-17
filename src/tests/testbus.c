@@ -4,7 +4,7 @@
 int main(void)
 {
 	ccb_bus bus;
-	constructor(&bus);
+	bus_constructor(&bus);
 	if (bus.initialize() == 0)
 	{
 		bus.write(0x8000, 0x20);

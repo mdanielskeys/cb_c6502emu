@@ -1,7 +1,14 @@
+
+#include <stdlib.h>
+#include <stdint.h>
 #include "ccbRamBus.h"
 #include "ccbBus.h"
 
-uint8_t* ram;
+static uint8_t* ram = NULL;
+
+
+#define RAMBUS_INIT_OK 0
+#define RAMBUS_INIT_ERR UINT16_MAX
 
 static uint16_t initialize()
 {
@@ -9,31 +16,35 @@ static uint16_t initialize()
     if (ram == NULL)
     {
         // an error occurred return bad init
-        return -1;
+        return RAMBUS_INIT_ERR;
     }
-
-    return 0;
+    return RAMBUS_INIT_OK;
 }
+
 
 static void shutdown()
 {
-    if (ram != NULL)
+    if (ram != NULL) {
         free(ram);
+        ram = NULL;
+    }
 }
+
 
 static void write(uint16_t addr, uint8_t value)
 {
-    if (ram != NULL && (addr >= 0x0000 && addr <= 0xFFFF))
-        ram[addr] = value;
+    if (ram != NULL)
+        ram[addr & 0xFFFF] = value;
 }
+
 
 static uint8_t read(uint16_t addr)
 {
-    if (ram != NULL && (addr >= 0x0000 && addr <= 0xFFFF))
-        return ram[addr];
-
+    if (ram != NULL)
+        return ram[addr & 0xFFFF];
     return 0;
 }
+
 
 void bus_constructor(ccb_bus* bus_def)
 {

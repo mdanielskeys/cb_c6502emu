@@ -1,3 +1,29 @@
+# VS Code
+.vscode/
+
+# Build output
+*.o
+*.obj
+*.exe
+*.dll
+*.so
+*.out
+build/
+Debug/
+Release/
+
+# msbuild
+*.user
+*.suo
+*.cache
+*.log
+
+# WSL
+*.wsl
+
+# Other
+*.DS_Store
+*.swp
 # Prerequisites
 *.d
 
