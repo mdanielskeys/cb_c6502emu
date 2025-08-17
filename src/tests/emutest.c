@@ -43,16 +43,16 @@ static void run_program(uint16_t start_address, uint16_t prog_size)
             cpu_clock();
             tsstart = tnow;
         }
-    } while ((pcpu_state->pc < (start_address + prog_size)) || (!complete()));
+    } while ((pcpu_state->pc < (start_address + prog_size - 1)) || (!complete()));
 }
 
-static void load_and_run_test_prog(ccb_bus *pccb_bus, uint8_t *prog, char *test_name)
+static void load_and_run_test_prog(ccb_bus *pccb_bus, uint8_t *prog, size_t prog_size, char *test_name)
 {
     uint16_t start_address = 0x8000;
     printf("\n%s loading program\n", test_name);
     load_program(pccb_bus, prog, start_address);
     printf("%s running program\n", test_name);
-    run_program(start_address, strnlen(prog, 13));
+    run_program(start_address, prog_size);
 }
 
 static void test_reg_a(uint8_t expected_value, char *test_name)
@@ -102,8 +102,6 @@ static void test_reg_y(uint8_t expected_value, char *test_name)
 
 static void test_flags(uint8_t expected_value, FLAGS6502 flag, char *flag_name, char *test_name)
 {
-    const cpu_state *pcpu_state = get_cpu_state();
-
     printf("%s program flag '%s' result value expected %d ", test_name, flag_name, expected_value);
     if (get_flag(flag) == expected_value)
     {
@@ -111,7 +109,7 @@ static void test_flags(uint8_t expected_value, FLAGS6502 flag, char *flag_name, 
     }
     else
     {
-        printf("got %d - FAIL\n", expected_value, get_flag(flag));
+        printf("got %d - FAIL\n", get_flag(flag));
     }
 }
 
@@ -127,7 +125,7 @@ static void test_indirect_zero_page(ccb_bus *pccb_bus)
     */
     char test_name[] = "test_indirect_zero_page";
     uint8_t prog[] = {0xA9, 0x20, 0x85, 0x11, 0xA9, 0x10, 0x85, 0x10, 0xA2, 0x01, 0xB5, 0x10, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
     test_reg_a(0x20, test_name);
     test_reg_x(0x01, test_name);
     test_flags(0, N, "N", test_name);
@@ -141,7 +139,7 @@ static void test_lda_immediate(ccb_bus *pccb_bus)
     */
     char test_name[] = "test_lda_immediate";
     uint8_t prog[] = {0xA9, 0x20, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
     test_reg_a(0x20, test_name);
     test_flags(0, N, "N", test_name);
     test_flags(0, Z, "Z", test_name);
@@ -154,7 +152,7 @@ static void test_lda_immediate_neg(ccb_bus *pccb_bus)
     */
     char test_name[] = "test_lda_immediate_neg";
     uint8_t prog[] = {0xA9, 0xFF, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
     test_reg_a(0xFF, test_name);
     test_flags(1, N, "N", test_name);
     test_flags(0, Z, "Z", test_name);
@@ -171,7 +169,7 @@ static void test_stack_push_pull(ccb_bus *pccb_bus)
     */
     char test_name[] = "test_stack_push_pull";
     uint8_t prog[] = {0xA9, 0x20, 0x48, 0xA9, 0x15, 0xAA, 0x68, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
     test_reg_a(0x20, test_name);
     test_reg_x(0x15, test_name);
     test_flags(0, N, "N", test_name);
@@ -182,7 +180,7 @@ static void test_adc_bcd(ccb_bus *pccb_bus)
 {
     char test_name[] = "test_adc_bcd";
     uint8_t prog[] = {0xA9, 0x45, 0xF8, 0x18, 0x69, 0x23, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
     test_reg_a(0x68, test_name);
     test_flags(0, C, "C", test_name);
     test_flags(1, D, "D", test_name);
@@ -192,7 +190,7 @@ static void test_adc_bcd_with_carry(ccb_bus *pccb_bus)
 {
     char test_name[] = "test_adc_bcd_with_carry";
     uint8_t prog[] = {0xA9, 0x49, 0xF8, 0x18, 0x69, 0x23, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog)/sizeof(uint8_t), test_name);
     test_reg_a(0x72, test_name);
     test_flags(0, C, "C", test_name);
     test_flags(1, D, "D", test_name);
@@ -202,17 +200,32 @@ static void test_adc_bcd_one_hundred(ccb_bus *pccb_bus)
 {
     char test_name[] = "test_adc_bcd_one_hundred";
     uint8_t prog[] = {0xA9, 0x99, 0xF8, 0x18, 0x69, 0x01, 0x00};
-    load_and_run_test_prog(pccb_bus, prog, test_name);
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
     test_reg_a(0x00, test_name);
     test_flags(1, C, "C", test_name);
     test_flags(1, D, "D", test_name);
 }
 
+static void test_load_y_immediate(ccb_bus *pccb_bus)
+{
+    /*
+    LDX #$20
+    LDY #$10
+    */
+    char test_name[] = "test_load_y_immediate";
+    uint8_t prog[] = {0xA2, 0x20, 0xA0, 0x10, 0x00};
+    load_and_run_test_prog(pccb_bus, prog, sizeof(prog) / sizeof(uint8_t), test_name);
+    test_reg_x(0x20, test_name);
+    test_reg_y(0x10, test_name);
+    test_flags(0, N, "N", test_name);
+    test_flags(0, Z, "Z", test_name);
+}
+
 int main(void)
 {
-    ccb_bus ram_bus;
+    ccb_bus ram_bus = {0};
     bus_constructor(&ram_bus);
-    if (ram_bus.initialize() == 0)
+    if (ram_bus.initialize && ram_bus.initialize() == RAMBUS_INIT_OK)
     {
         // successful initialization of bus
         initialize_c6502(&ram_bus);
@@ -223,6 +236,7 @@ int main(void)
         test_adc_bcd(&ram_bus);
         test_adc_bcd_with_carry(&ram_bus);
         test_adc_bcd_one_hundred(&ram_bus);
+        test_load_y_immediate(&ram_bus);
 
         ram_bus.shutdown();
     }

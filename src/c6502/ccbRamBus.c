@@ -7,9 +7,6 @@
 static uint8_t* ram = NULL;
 
 
-#define RAMBUS_INIT_OK 0
-#define RAMBUS_INIT_ERR UINT16_MAX
-
 static uint16_t initialize()
 {
     ram = (uint8_t*)calloc(0x10000, sizeof(uint8_t));
